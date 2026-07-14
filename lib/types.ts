@@ -41,3 +41,5 @@ export type GeneratedQuestion = AuditQuestion & { category: string; rationale: s
 export type SimulatedAnswer = { answer: string; citedEvidenceIds: string[]; confidence: number; abstained: boolean; claims: string[] };
 export type GroundingEvaluation = { grounded: boolean; omittedFactIds: string[]; unsupportedClaims: string[]; contradictoryClaims: string[]; abstentionAppropriate: boolean; operationallyUseful: boolean; explanation: string };
 export type Diagnosis = { failureLayer: string; missingFactIds: string[]; unsafeClaims: string[]; smallestSafeFix: string; explanation: string };
+export type GptAuditResult = GeneratedQuestion & { answer: SimulatedAnswer; evaluation: GroundingEvaluation };
+export type GptAuditBundle = { results: GptAuditResult[]; diagnosis: Diagnosis };
