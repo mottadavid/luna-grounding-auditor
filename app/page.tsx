@@ -66,7 +66,7 @@ export default function Home() {
         <div className="card">
           <div className="row">
             <h2>Certification report</h2>
-            {report && <span className={`status ${report.status}`}>{report.status}</span>}
+            {report && <div style={{display:"flex", gap:8, alignItems:"center"}}><span className="small">{report.mode === "gpt-5.6" ? `GPT-5.6 · ${report.model}` : "Deterministic demo mode"}</span><span className={`status ${report.status}`}>{report.status}</span></div>}
           </div>
           {!report && <p>Run the audit to compare canonical facts with voice-visible context.</p>}
           {report && <>

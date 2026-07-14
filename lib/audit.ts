@@ -8,9 +8,10 @@ const keywords = (fact: CanonicalFact) =>
 
 function surfaceContainsFact(surfaceText: string, fact: CanonicalFact): boolean {
   const haystack = normalize(surfaceText);
+  if (fact.category === "negative-control" && /not an in house|not in house|not performed in house|does not do/.test(haystack)) return false;
   const terms = keywords(fact);
   const matched = terms.filter((term) => haystack.includes(term));
-  return matched.length >= Math.max(2, Math.ceil(terms.length * 0.32));
+  return matched.length >= Math.max(2, Math.ceil(terms.length * 0.25));
 }
 
 export function runAudit(fixture: TenantFixture): AuditReport {

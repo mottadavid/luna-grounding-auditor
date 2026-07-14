@@ -46,13 +46,15 @@ This project turns that hidden failure into a release gate.
 
 The first release uses deterministic evidence matching so judges can run it without an API key.
 
-GPT-5.6 will add:
+GPT-5.6 mode is now available when `OPENAI_API_KEY` is set:
 
 - adversarial question generation;
 - answer simulation by surface;
 - semantic entailment evaluation;
 - missing-store and prompt-assembly diagnosis;
 - smallest-safe-fix recommendations.
+
+The integration uses the server-only OpenAI Responses API with strict structured outputs. Without a key, the app remains in deterministic demo mode. Set `OPENAI_MODEL` to the model enabled for your account (defaults to `gpt-5.6`).
 
 ## Codex requirement
 

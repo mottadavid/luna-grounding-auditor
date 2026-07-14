@@ -15,4 +15,12 @@ export type QuestionResult = {
 export type AuditReport = {
   tenantSlug: string; score: number; status: AuditStatus;
   totals: Record<AuditStatus, number>; results: QuestionResult[]; generatedAt: string;
+  mode?: "deterministic" | "gpt-5.6";
+  model?: string;
+  diagnosis?: Diagnosis;
 };
+
+export type GeneratedQuestion = AuditQuestion & { category: string; rationale: string };
+export type SimulatedAnswer = { answer: string; citedEvidenceIds: string[]; confidence: number; abstained: boolean; claims: string[] };
+export type GroundingEvaluation = { grounded: boolean; omittedFactIds: string[]; unsupportedClaims: string[]; contradictoryClaims: string[]; abstentionAppropriate: boolean; operationallyUseful: boolean; explanation: string };
+export type Diagnosis = { failureLayer: string; missingFactIds: string[]; unsafeClaims: string[]; smallestSafeFix: string; explanation: string };
