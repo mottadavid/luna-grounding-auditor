@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { runAudit } from "@/lib/audit";
 import { formatFixtureIssues, tenantFixtureSchema } from "@/lib/schema";
 import { openAiMode, modelName } from "@/lib/openai/client";
-import { diagnoseFailure, evaluateGrounding, generateQuestions, simulateAnswer } from "@/lib/openai/workflow";
+import { runGptAudit } from "@/lib/openai/workflow";
 
 export async function POST(request: Request) {
   let payload: unknown;
@@ -31,26 +31,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const questions = await generateQuestions(input);
-    const gptResults = [];
-    let diagnosis;
-    const visibleText = input.surfaces.map((surface) => surface.visibleText).join("\n");
-    for (const question of questions) {
-      const answer = await simulateAnswer(question, visibleText);
-      const evaluation = await evaluateGrounding(question, visibleText, answer, input.canonicalFacts);
-      if (!evaluation.grounded || evaluation.unsupportedClaims.length) {
-        diagnosis = await diagnoseFailure(evaluation, question);
-      }
-      gptResults.push({ ...question, answer, evaluation });
-    }
-
+    const bundle = await runGptAudit(input);
+    const generatedQuestions = bundle.results.map(({ answer: _answer, evaluation: _evaluation, ...question }) => question);
     return NextResponse.json({
-      ...runAudit({ ...input, questions }),
+      ...runAudit({ ...input, questions: generatedQuestions }),
       mode,
       model: modelName(),
-      generatedQuestions: questions,
-      gptResults,
-      diagnosis
+      generatedQuestions,
+      gptResults: bundle.results,
+      diagnosis: bundle.diagnosis
     });
   } catch (error) {
     return NextResponse.json({
