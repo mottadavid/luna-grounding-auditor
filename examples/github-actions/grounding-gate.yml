@@ -1,0 +1,38 @@
+name: AI grounding release gate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  certify-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Certify the deployment fixture
+        env:
+          GROUNDING_AUDITOR_URL: ${{ secrets.GROUNDING_AUDITOR_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GROUNDING_AUDITOR_URL"
+          status=$(curl --silent --show-error \
+            --output grounding-certification.json \
+            --write-out "%{http_code}" \
+            --header "Content-Type: application/json" \
+            --data-binary @fixtures/agent-release.json \
+            "$GROUNDING_AUDITOR_URL/api/gate")
+          cat grounding-certification.json
+          if [ "$status" != "200" ]; then
+            echo "Grounding certification blocked this deployment (HTTP $status)."
+            exit 1
+          fi
+
+      - name: Upload certification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: grounding-certification
+          path: grounding-certification.json
