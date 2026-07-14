@@ -32,6 +32,8 @@ export type AuditReport = {
   generatedAt: string;
   mode?: "deterministic" | "gpt-5.6";
   model?: string;
+  requestedModel?: string;
+  gptFallbackReason?: string;
   diagnosis?: Diagnosis;
 };
 
