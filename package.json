@@ -8,7 +8,8 @@
     "start": "next start",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run test && npm run typecheck && npm run build"
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
+    "verify": "npm run audit:prod && npm run test && npm run typecheck && npm run build"
   },
   "dependencies": {
     "next": "15.5.20",

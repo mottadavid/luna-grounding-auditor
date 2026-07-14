@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luna-grounding-auditor.example/fixture.schema.json",
+  "title": "Luna Grounding Auditor Fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tenant", "canonicalFacts", "surfaces", "questions"],
+  "properties": {
+    "tenant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "businessName"],
+      "properties": {
+        "slug": { "type": "string", "minLength": 1 },
+        "businessName": { "type": "string", "minLength": 1 }
+      }
+    },
+    "canonicalFacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "category", "claim", "evidence"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "category": { "type": "string", "minLength": 1 },
+          "claim": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["surface", "visibleText"],
+        "properties": {
+          "surface": { "type": "string", "minLength": 1 },
+          "visibleText": { "type": "string" }
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "question", "expectedFactIds"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "question": { "type": "string", "minLength": 1 },
+          "expectedFactIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "negativeControl": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

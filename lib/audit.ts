@@ -1,3 +1,4 @@
+import { fingerprintFixture } from "./fingerprint";
 import type { AuditReport, AuditStatus, CanonicalFact, TenantFixture } from "./types";
 
 const normalize = (value: string) =>
@@ -14,6 +15,37 @@ function surfaceContainsFact(surfaceText: string, fact: CanonicalFact): boolean 
   return matched.length >= Math.max(2, Math.ceil(terms.length * 0.25));
 }
 
+function diagnoseLayer(results: AuditReport["results"]): string {
+  if (results.every((result) => result.status === "PASS")) return "none";
+  const unsafeSurface = results.some(
+    (result) => result.status === "FAIL" && result.expectedFacts.some((fact) => fact.category === "negative-control")
+  );
+  return unsafeSurface ? "surface-context" : "prompt-builder";
+}
+
+function recommendFix(results: AuditReport["results"]): string {
+  const unsafe = results.some(
+    (result) => result.status === "FAIL" && result.expectedFacts.some((fact) => fact.category === "negative-control")
+  );
+  const missingCategories = Array.from(
+    new Set(
+      results
+        .filter((result) => result.status !== "PASS")
+        .flatMap((result) => result.expectedFacts)
+        .filter((fact) => fact.category !== "negative-control")
+        .map((fact) => fact.category)
+    )
+  );
+
+  const actions: string[] = [];
+  if (missingCategories.length) {
+    actions.push(`Expose the approved ${missingCategories.join(", ")} facts to the tested surface`);
+  }
+  if (unsafe) actions.push("remove unsupported affirmative claims from the surface-visible context");
+  if (!actions.length) return "No remediation required.";
+  return `${actions.join(" and ")}, then re-run certification.`;
+}
+
 export function runAudit(fixture: TenantFixture): AuditReport {
   const mergedSurface = fixture.surfaces.map((surface) => surface.visibleText).join("\n");
   const byId = new Map(fixture.canonicalFacts.map((fact) => [fact.id, fact]));
@@ -26,6 +58,9 @@ export function runAudit(fixture: TenantFixture): AuditReport {
     const visibleEvidence = expectedFacts
       .filter((fact) => surfaceContainsFact(mergedSurface, fact))
       .map((fact) => fact.id);
+    const missingEvidenceIds = expectedFacts
+      .map((fact) => fact.id)
+      .filter((id) => !visibleEvidence.includes(id));
 
     let status: AuditStatus;
     let reason: string;
@@ -47,7 +82,7 @@ export function runAudit(fixture: TenantFixture): AuditReport {
       reason = "The source fact exists, but it is not visible to the tested surface.";
     }
 
-    return { id: question.id, question: question.question, status, expectedFacts, visibleEvidence, reason };
+    return { id: question.id, question: question.question, status, expectedFacts, visibleEvidence, missingEvidenceIds, reason };
   });
 
   const totals = results.reduce(
@@ -57,5 +92,18 @@ export function runAudit(fixture: TenantFixture): AuditReport {
   const score = Math.round(((totals.PASS + totals.PARTIAL * 0.5) / Math.max(results.length, 1)) * 100);
   const status: AuditStatus = totals.FAIL > 0 ? "FAIL" : totals.PARTIAL > 0 ? "PARTIAL" : "PASS";
 
-  return { tenantSlug: fixture.tenant.slug, score, status, totals, results, generatedAt: new Date().toISOString() };
+  return {
+    reportVersion: "1.0",
+    tenantSlug: fixture.tenant.slug,
+    fixtureFingerprint: fingerprintFixture(fixture),
+    score,
+    status,
+    deploymentSafe: status === "PASS",
+    totals,
+    failedControlIds: results.filter((result) => result.status !== "PASS").map((result) => result.id),
+    results,
+    diagnosedLayer: diagnoseLayer(results),
+    smallestSafeFix: recommendFix(results),
+    generatedAt: new Date().toISOString()
+  };
 }
