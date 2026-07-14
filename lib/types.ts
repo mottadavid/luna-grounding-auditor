@@ -9,12 +9,27 @@ export type TenantFixture = {
   questions: AuditQuestion[];
 };
 export type QuestionResult = {
-  id: string; question: string; status: AuditStatus;
-  expectedFacts: CanonicalFact[]; visibleEvidence: string[]; reason: string;
+  id: string;
+  question: string;
+  status: AuditStatus;
+  expectedFacts: CanonicalFact[];
+  visibleEvidence: string[];
+  missingEvidenceIds: string[];
+  reason: string;
 };
 export type AuditReport = {
-  tenantSlug: string; score: number; status: AuditStatus;
-  totals: Record<AuditStatus, number>; results: QuestionResult[]; generatedAt: string;
+  reportVersion: "1.0";
+  tenantSlug: string;
+  fixtureFingerprint: string;
+  score: number;
+  status: AuditStatus;
+  deploymentSafe: boolean;
+  totals: Record<AuditStatus, number>;
+  failedControlIds: string[];
+  results: QuestionResult[];
+  diagnosedLayer: string;
+  smallestSafeFix: string;
+  generatedAt: string;
   mode?: "deterministic" | "gpt-5.6";
   model?: string;
   diagnosis?: Diagnosis;
