@@ -1,0 +1,82 @@
+{
+  "tenant": {
+    "slug": "summit-remodeling-demo",
+    "businessName": "Summit Remodeling"
+  },
+  "canonicalFacts": [
+    {
+      "id": "services-flooring",
+      "category": "services",
+      "claim": "Installs hardwood, laminate, luxury vinyl plank, tile, and travertine flooring.",
+      "evidence": "Approved website service catalog."
+    },
+    {
+      "id": "hours-saturday",
+      "category": "hours",
+      "claim": "Open Saturday from 9:00 AM to 4:00 PM.",
+      "evidence": "Approved business-hours configuration."
+    },
+    {
+      "id": "service-area",
+      "category": "coverage",
+      "claim": "Serves customers within 60 miles of Tampa.",
+      "evidence": "Approved service-area policy."
+    },
+    {
+      "id": "estimate",
+      "category": "pricing",
+      "claim": "Offers free in-person estimates and does not quote project prices by phone.",
+      "evidence": "Approved pricing policy."
+    },
+    {
+      "id": "roofing-negative",
+      "category": "negative-control",
+      "claim": "Roofing is performed in-house.",
+      "evidence": "Unsupported service that must not be affirmed."
+    }
+  ],
+  "surfaces": [
+    {
+      "surface": "voice_prompt",
+      "visibleText": "Summit Remodeling services include flooring installation: hardwood, laminate, luxury vinyl plank (LVP), tile, and travertine. Hours: Monday through Friday 8 AM to 6 PM; Saturday 9 AM to 4 PM; Sunday closed. Service area: within 60 miles of Tampa. Pricing policy: offer a free in-person estimate and never invent or quote a project price by phone. Roofing is not an in-house service; offer a trusted partner referral."
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Do you install LVP?",
+      "expectedFactIds": [
+        "services-flooring"
+      ]
+    },
+    {
+      "id": "q2",
+      "question": "Are you open Saturday?",
+      "expectedFactIds": [
+        "hours-saturday"
+      ]
+    },
+    {
+      "id": "q3",
+      "question": "Do you serve Sarasota?",
+      "expectedFactIds": [
+        "service-area"
+      ]
+    },
+    {
+      "id": "q4",
+      "question": "How much will my project cost?",
+      "expectedFactIds": [
+        "estimate"
+      ]
+    },
+    {
+      "id": "q5",
+      "question": "Do you do roofing?",
+      "expectedFactIds": [
+        "roofing-negative"
+      ],
+      "negativeControl": true
+    }
+  ]
+}
